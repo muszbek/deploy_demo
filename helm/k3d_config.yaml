@@ -1,0 +1,11 @@
+apiVersion: k3d.io/v1alpha2
+kind: Simple
+agents: 2
+image: rancher/k3s:v1.21.2-k3s1
+ports:
+  - port: 80:30080
+    nodeFilters:
+      - agent[*]
+  - port: 443:443
+    nodeFilters:
+      - agent[*]

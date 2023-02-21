@@ -1,0 +1,88 @@
+{{- $fullName := include "deploy_demo.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}
+  namespace: {{ .Values.namespaces.phoenix }}
+  labels:
+    {{- include "deploy_demo.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ $fullName }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: {{ $fullName }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "deploy_demo.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetport }}
+              protocol: TCP
+          env:
+            - name: MIX_ENV
+              value: prod
+            - name: POSTGRES_USER
+              value: {{ .Values.postgres.credentials.username }}
+            - name: POSTGRES_HOST
+              value: {{ $fullName }}-postgres.{{ .Values.namespaces.database }}
+            - name: DATABASE_URL
+              value: ecto://{{ .Values.postgres.credentials.username }}:{{ .Values.postgres.credentials.password }}@{{ $fullName }}-postgres.{{ .Values.namespaces.database }}/{{ .Values.postgres.database_name }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.targetport }}
+            initialDelaySeconds: {{ .Values.deployment.liveness_delay }}
+            periodSeconds: {{ .Values.deployment.liveness_period }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.targetport }}
+            initialDelaySeconds: {{ .Values.deployment.liveness_delay }}
+            periodSeconds: {{ .Values.deployment.liveness_period }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      initContainers:
+        - name: wait-for-postgres
+          image: stephenc/postgresql-cli:latest
+          command:
+            - "sh"
+            - "-c"
+            - "rv=0; for n in $(seq 1 {{ .Values.deployment.postgres_max_wait }}) ; do pg_isready && rv=0 && break || rv=$? && echo 'Waiting for PostgreSQL'; sleep 1; done; exit $rv"
+          env:
+            - name: "PGHOST"
+              value: {{ $fullName }}-postgres.{{ .Values.namespaces.database }}
+            - name: "PGUSER"
+              value: {{ .Values.postgres.credentials.username }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

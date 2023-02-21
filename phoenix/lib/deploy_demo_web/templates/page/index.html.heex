@@ -1,0 +1,12 @@
+<section class="phx-hero">
+  <h1><%= gettext "Welcome to %{name}!", name: "Phoenix" %></h1>
+  <p>Peace of mind from prototype to production</p>
+</section>
+
+<section class="row">
+  <article class="column">
+    <h2>Server analytics:</h2>
+    <%= "Last started up at #{Analytics.get_last_startup!() |> time()}" %><br>
+    <%= "First started up at #{Analytics.get_first_startup!() |> time()}" %>
+  </article>
+</section>

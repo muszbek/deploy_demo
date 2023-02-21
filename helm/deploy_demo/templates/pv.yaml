@@ -1,0 +1,19 @@
+{{- if .Values.postgres.volume.enabled -}}
+  {{- if eq .Values.postgres.volume.type "local" }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "deploy_demo.fullname" . }}-postgres-pv
+  labels:
+    type: {{ .Values.postgres.volume.type }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: {{ .Values.postgres.volume.size }}
+  storageClassName: local-path
+  hostPath:
+    path: /volumes_data/postgres/data/data
+    type: DirectoryOrCreate
+  {{- end }}
+{{- end }}

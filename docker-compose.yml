@@ -1,0 +1,49 @@
+version: '3.7'
+services:
+
+  phx-server:
+    image: deploy_demo:0.1
+    build:
+      context: ./phoenix
+    ports:
+      - 4000:4000
+    networks:
+      - demo_network
+    restart: on-failure
+    depends_on:
+      - postgres
+    environment:
+      - MIX_ENV=prod
+      - POSTGRES_USER=postgres
+      - POSTGRES_HOST=postgres
+      - DATABASE_URL=ecto://postgres:postgres@postgres/deploy_demo
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+        monitor: 10s
+        order: start-first
+      restart_policy:
+        condition: on-failure
+      
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - 5432:5432
+    networks:
+      - demo_network
+    shm_size: 256M
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=deploy_demo
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+    
+networks:
+  demo_network:

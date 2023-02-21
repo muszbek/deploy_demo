@@ -1,0 +1,69 @@
+repositories:
+  - name: aws-ebs-csi-driver
+    url: https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+  - name: eks
+    url: https://aws.github.io/eks-charts
+  - name: external-dns
+    url: https://kubernetes-sigs.github.io/external-dns
+
+{{ $domainName := default "example.com" (env "DOMAIN") }}
+{{ $clusterName := "demo-cluster" }}
+
+# Commented out while testing without aws environment
+{{/* $acmArn := exec "aws" (list "acm" "list-certificates" "--query" "\"CertificateSummaryList[?DomainName=='{{ $domainName }}'].CertificateArn\"" "--output" "text") */}}
+{{/* $awsAccountId := exec "aws" (list "sts" "get-caller-identity" "--query" "Account" "--output" "text") */}}
+
+# Temporary dummies for values in aws environment
+{{ $acmArn := "dummy_arn" }}
+{{ $awsAccountId := "dummy_id" }}
+
+releases:
+  - name: demo
+    chart: ./helm/deploy_demo
+    values:
+      - ingress:
+          annotations:
+            alb.ingress.kubernetes.io/certificate_arn: {{ $acmArn }}
+          domain: {{ $domainName }}
+      - image:
+          pullPolicy: Never
+      - service:
+          type: NodePort
+      - postgres:
+          volume:
+            enabled: false
+              
+  - name: aws-ebs
+    namespace: kube-system
+    chart: aws-ebs-csi-driver/aws-ebs-csi-driver
+    values:
+      - controller:
+          serviceAccount:
+            annotations: {
+              "eks.amazonaws.com/role-arn": "arn:aws:iam::{{ $awsAccountId }}:role/iam_ebs_csi_role"
+              }
+
+  - name: aws-alb
+    namespace: kube-system
+    chart: eks/aws-load-balancer-controller
+    values:
+      - clusterName: {{ $clusterName }}
+      - ingressClassParams:
+          create: false
+      - serviceAccount:
+          name: aws-load-balancer-controller
+          annotations: {
+            "eks.amazonaws.com/role-arn": "arn:aws:iam::{{ $awsAccountId }}:role/iam_alb_controller_role"
+            }
+
+  - name: aws-route53
+    namespace: kube-system
+    chart: external-dns/external-dns
+    values:
+      - domainFilters:
+          - {{ $domainName }}
+      - serviceAccount:
+          name: external-dns
+          annotations: {
+            "eks.amazonaws.com/role-arn": "arn:aws:iam::{{ $awsAccountId }}:role/iam_external_dns_role"
+            }

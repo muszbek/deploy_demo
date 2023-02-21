@@ -1,0 +1,66 @@
+{{- $fullName := include "deploy_demo.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}-postgres
+  namespace: {{ .Values.namespaces.database }}
+  labels:
+    {{- include "deploy_demo.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $fullName }}-postgres
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: {{ $fullName }}-postgres
+    spec:
+      serviceAccountName: {{ include "deploy_demo.serviceAccountName" . }}-postgres
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.postgres.image }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.postgres.port }}
+              protocol: TCP
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.postgres.credentials.username }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgres.credentials.password }}
+            - name: POSTGRES_DB
+              value: {{ .Values.postgres.database_name }}
+          {{- if .Values.postgres.volume.enabled }}
+          volumeMounts:
+            - name: postgres-data-pv
+              mountPath: /var/lib/postgresql/data
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- if .Values.postgres.volume.enabled }}
+      volumes:
+        - name: postgres-data-pv
+          persistentVolumeClaim:
+            claimName: {{ $fullName }}-postgres-pvc
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,19 @@
+{{- if .Values.postgres.volume.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "deploy_demo.fullname" . }}-postgres-pvc
+  namespace: {{ .Values.namespaces.database }}
+  labels:
+    app: {{ include "deploy_demo.fullname" . }}-postgres
+    type: {{ .Values.postgres.volume.type }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.postgres.volume.size }}
+  selector:
+    matchLabels:
+      type: "{{ .Values.postgres.volume.type }}"
+{{- end }}

@@ -1,0 +1,13 @@
+{{- if ne .Values.namespaces.phoenix "default" -}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespaces.phoenix }}
+{{- end }}
+
+{{- if ne .Values.namespaces.database "default" -}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespaces.database }}
+{{- end }}
