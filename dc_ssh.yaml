@@ -1,0 +1,21 @@
+version: '3.7'
+services:
+
+  ssh-server:
+    image: ansible_staging:0.1
+    build:
+      context: ./ansible_staging
+    hostname: ssh-server
+    networks:
+      static_network:
+        ipv4_address: 10.1.0.10
+    volumes:
+      - $PWD/keys/id_rsa.pub:/home/ubuntu/.ssh/authorized_keys
+
+networks:
+  static_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.1.0.0/24

@@ -1,0 +1,5 @@
+- name: Provision server
+  hosts: webservers
+  remote_user: ubuntu
+  roles:
+    - provision
