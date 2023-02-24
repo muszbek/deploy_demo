@@ -1,4 +1,5 @@
 - name: Apt install dependencies
+  become: true
   apt:
     name: "{{item}}"
     state: present
@@ -11,16 +12,19 @@
     - software-properties-common
 
 - name: Add GPG key
+  become: true
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
 
 - name: Add apt repository
+  become: true
   apt_repository:
     repo: deb https://download.docker.com/linux/ubuntu bionic stable
     state: present
 
 - name: Install docker
+  become: true
   apt:
     name: "{{item}}"
     state: latest
@@ -30,6 +34,13 @@
     - docker-ce-cli
     - containerd.io
     - docker-compose-plugin
+
+- name: Make user the owner of docker socket
+  become: true
+  file:
+    path: /var/run/docker.sock
+    owner: "{{ ansible_user_id }}"
+    group: docker
 
 - name: Assure that docker is active
   service:
