@@ -22,9 +22,9 @@ spec:
       labels:
         app: {{ $fullName }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.imagePullSecret.name }}
       imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
+        - name: {{ .Values.imagePullSecret.name }}
       {{- end }}
       serviceAccountName: {{ include "deploy_demo.serviceAccountName" . }}
       securityContext:
@@ -33,7 +33,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

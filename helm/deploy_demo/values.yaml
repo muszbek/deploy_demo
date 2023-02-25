@@ -5,12 +5,16 @@
 replicaCount: 2
 
 image:
-  repository: deploy_demo
+  repository: ""
+  name: deploy_demo
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-imagePullSecrets: []
+imagePullSecret:
+  name: ""
+  value: ""
+
 nameOverride: ""
 fullnameOverride: ""
 

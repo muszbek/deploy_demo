@@ -7,15 +7,18 @@ repositories:
     url: https://kubernetes-sigs.github.io/external-dns
 
 {{ $domainName := default "example.com" (env "DOMAIN") }}
-{{ $clusterName := "demo-cluster" }}
+{{ $clusterName := default "demo-cluster" (env "CLUSTER_NAME") }}
 
 # Commented out while testing without aws environment
 {{/* $acmArn := exec "aws" (list "acm" "list-certificates" "--query" "\"CertificateSummaryList[?DomainName=='{{ $domainName }}'].CertificateArn\"" "--output" "text") */}}
 {{/* $awsAccountId := exec "aws" (list "sts" "get-caller-identity" "--query" "Account" "--output" "text") */}}
+{{/* $awsRegion := exec "aws" (list "configure" "get" "region") */}}
 
 # Temporary dummies for values in aws environment
 {{ $acmArn := "dummy_arn" }}
 {{ $awsAccountId := "dummy_id" }}
+{{ $awsRegion := "eu-west-1" }}
+{{ $dockerCreds := "dummy_creds" }}
 
 releases:
   - name: demo
@@ -25,7 +28,11 @@ releases:
           annotations:
             alb.ingress.kubernetes.io/certificate_arn: {{ $acmArn }}
           domain: {{ $domainName }}
+      - imagePullSecret:
+          name: ecr-credentials
+          value: {{ $dockerCreds }}
       - image:
+          #repository: "{{ $awsAccountId }}.dkr.ecr.{{ $awsRegion }}.amazonaws.com/"
           pullPolicy: Never
       - service:
           type: NodePort
