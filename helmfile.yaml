@@ -8,17 +8,10 @@ repositories:
 
 {{ $domainName := default "example.com" (env "DOMAIN") }}
 {{ $clusterName := default "demo-cluster" (env "CLUSTER_NAME") }}
-
-# Commented out while testing without aws environment
-{{/* $acmArn := exec "aws" (list "acm" "list-certificates" "--query" "\"CertificateSummaryList[?DomainName=='{{ $domainName }}'].CertificateArn\"" "--output" "text") */}}
-{{/* $awsAccountId := exec "aws" (list "sts" "get-caller-identity" "--query" "Account" "--output" "text") */}}
-{{/* $awsRegion := exec "aws" (list "configure" "get" "region") */}}
-
-# Temporary dummies for values in aws environment
-{{ $acmArn := "dummy_arn" }}
-{{ $awsAccountId := "dummy_id" }}
-{{ $awsRegion := "eu-west-1" }}
-{{ $dockerCreds := "dummy_creds" }}
+{{ $awsAccountId := default "dummy_id" (env "AWS_ACCOUNT_ID") }}
+{{ $acmArn := default "dummy_arn" (env "AWS_ACM_ARN") }}
+{{ $awsEcrRepo := default "" (env "AWS_ECR_REPO") }}
+{{ $dockerCreds := default "dummy_creds" (env "DOCKER_CONFIG_JSON") }}
 
 releases:
   - name: demo
@@ -32,7 +25,7 @@ releases:
           name: ecr-credentials
           value: {{ $dockerCreds }}
       - image:
-          #repository: "{{ $awsAccountId }}.dkr.ecr.{{ $awsRegion }}.amazonaws.com/"
+          repository: {{ $awsEcrRepo }}
           pullPolicy: Never
       - service:
           type: NodePort
