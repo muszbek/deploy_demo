@@ -2,11 +2,11 @@ version: '3.7'
 services:
 
   phx-server:
-    image: deploy_demo:0.1
+    image: ${AWS_ECR_REPO}:deploy_demo_0.1
     build:
       context: ./phoenix
     ports:
-      - 4000:4000
+      - 80:4000
     networks:
       - demo_network
     restart: on-failure
