@@ -1,4 +1,4 @@
-DOMAIN=example.com
+DOMAIN=tamasweb.com
 CLUSTER_NAME=demo-cluster
 
 AWS_REGION=$(aws configure get region)

@@ -9,5 +9,5 @@ resource "aws_ecr_repository" "repo" {
 }
 
 resource "aws_s3_bucket" "bucket" {
-  bucket = "my-bucket"
+  bucket = "demo-s3-bucket.${local.domain}"
 }

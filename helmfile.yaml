@@ -6,7 +6,7 @@ repositories:
   - name: external-dns
     url: https://kubernetes-sigs.github.io/external-dns
 
-{{ $domainName := default "example.com" (env "DOMAIN") }}
+{{ $domainName := default "tamasweb.com" (env "DOMAIN") }}
 {{ $clusterName := default "demo-cluster" (env "CLUSTER_NAME") }}
 {{ $awsAccountId := default "dummy_id" (env "AWS_ACCOUNT_ID") }}
 {{ $acmArn := default "dummy_arn" (env "AWS_ACM_ARN") }}

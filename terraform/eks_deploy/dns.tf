@@ -1,5 +1,5 @@
 locals {
-  domain = "example.com"
+  domain = "tamasweb.com"
 }
 
 resource "aws_route53_zone" "zone" {

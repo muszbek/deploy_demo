@@ -1,5 +1,5 @@
 locals {
-  domain = "example.com"
+  domain = "tamasweb.com"
 }
 
 resource "aws_route53_zone" "zone" {
@@ -10,8 +10,12 @@ resource "aws_route53_record" "www" {
   zone_id = aws_route53_zone.zone.zone_id
   name = local.domain
   type = "A"
-  ttl = "300"
-  records = ["${aws_lb.lb.dns_name}"]
+
+  alias {
+    name = aws_lb.lb.dns_name
+    zone_id = aws_lb.lb.zone_id
+    evaluate_target_health = true
+  }
 }
 
 module "acm" {
