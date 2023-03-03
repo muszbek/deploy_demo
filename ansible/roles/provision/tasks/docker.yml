@@ -1,7 +1,7 @@
 - name: Apt install dependencies
   become: true
   apt:
-    name: "{{item}}"
+    name: "{{ item }}"
     state: present
     update_cache: yes
   loop:
@@ -26,7 +26,7 @@
 - name: Install docker
   become: true
   apt:
-    name: "{{item}}"
+    name: "{{ item }}"
     state: latest
     update_cache: yes
   loop:
@@ -34,6 +34,13 @@
     - docker-ce-cli
     - containerd.io
     - docker-compose-plugin
+    - docker-compose
+
+- name: Assure that docker is active
+  service:
+    name: docker
+    state: started
+    enabled: yes
 
 - name: Make user the owner of docker socket
   become: true
@@ -41,9 +48,3 @@
     path: /var/run/docker.sock
     owner: "{{ ansible_user_id }}"
     group: docker
-
-- name: Assure that docker is active
-  service:
-    name: docker
-    state: started
-    enabled: yes

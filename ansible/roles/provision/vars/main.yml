@@ -1,2 +1,4 @@
 ---
 # vars file for provision
+target_home: "/home/ubuntu"
+aws_ecr_repo: "{{ lookup('env', 'AWS_ECR_REPO') }}"

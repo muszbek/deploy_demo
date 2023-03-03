@@ -1,0 +1,23 @@
+- name: Copy docker-compose files to target
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: ubuntu
+    group: ubuntu
+  with_items:
+    - src: "docker-compose.yml"
+      dest: "{{ target_home }}/docker-compose.yml"
+    - src: ".env.j2"
+      dest: "{{ target_home }}/.env"
+
+- name: Create directory for docker credentials
+  file:
+    path: "{{ target_home }}/.docker"
+    state: directory
+
+- name: Copy docker credentials to target
+  copy:
+    src: "~/.docker/config.json"
+    dest: "{{ target_home }}/.docker/config.json"
+    owner: ubuntu
+    group: ubuntu
