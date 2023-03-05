@@ -30,6 +30,6 @@ locals {
 
 resource "null_resource" "eks_kubeconfig" {
   provisioner "local-exec" {
-    command = "aws eks update-kubeconfig --name ${local.cluster_name} --region ${local.region}"
+    command = "rm -f ~/.kube/config && aws eks update-kubeconfig --name ${local.cluster_name} --region ${local.region}"
   }
 }

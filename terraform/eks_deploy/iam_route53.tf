@@ -15,7 +15,7 @@ resource "aws_iam_role" "external_dns" {
       {
 	Effect = "Allow"
 	Principal = {
-	  Federated = "arn:aws:iam::${local.account_id}:${local.oidc_provider_id}"
+	  Federated = "arn:aws:iam::${local.account_id}:oidc-provider/${local.oidc_provider_id}"
 	}
 	Action = "sts:AssumeRoleWithWebIdentity"
 	Condition = {
