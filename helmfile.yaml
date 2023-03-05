@@ -26,12 +26,7 @@ releases:
           value: {{ $dockerCreds }}
       - image:
           repository: {{ $awsEcrRepo }}
-          pullPolicy: Never
-      - service:
-          type: NodePort
-      - postgres:
-          volume:
-            enabled: false
+          tag: "deploy_demo_0.1"
               
   - name: aws-ebs
     namespace: kube-system

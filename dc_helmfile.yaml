@@ -10,5 +10,11 @@ services:
       - ${PWD}:/wd:ro
     environment:
       - KUBECONFIG=/root/.kube/config
+      - DOMAIN=${DOMAIN}
+      - CLUSTER_NAME=${CLUSTER_NAME}
+      - AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}
+      - AWS_ACM_ARN=${AWS_ACM_ARN}
+      - AWS_ECR_REPO=${AWS_ECR_REPO}
+      - DOCKER_CONFIG_JSON=${DOCKER_CONFIG_JSON}
     network_mode: host
     command: apply
