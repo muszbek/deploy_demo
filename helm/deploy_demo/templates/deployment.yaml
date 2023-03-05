@@ -1,4 +1,5 @@
 {{- $fullName := include "deploy_demo.fullname" . -}}
+{{- $imagePullSecret := .Values.imagePullSecret.name -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,9 +23,9 @@ spec:
       labels:
         app: {{ $fullName }}
     spec:
-      {{- with .Values.imagePullSecret.name }}
+      {{- if $imagePullSecret }}
       imagePullSecrets:
-        - name: {{ .Values.imagePullSecret.name }}
+        - name: {{ $imagePullSecret }}
       {{- end }}
       serviceAccountName: {{ include "deploy_demo.serviceAccountName" . }}
       securityContext:

@@ -11,7 +11,7 @@ repositories:
 {{ $awsAccountId := default "dummy_id" (env "AWS_ACCOUNT_ID") }}
 {{ $acmArn := default "dummy_arn" (env "AWS_ACM_ARN") }}
 {{ $awsEcrRepo := default "" (env "AWS_ECR_REPO") }}
-{{ $dockerCreds := default "dummy_creds" (env "DOCKER_CONFIG_JSON") }}
+{{ $dockerCreds := default "dummy_creds" (env "DOCKER_CREDS") }}
 
 releases:
   - name: demo
@@ -23,7 +23,7 @@ releases:
           domain: {{ $domainName }}
       - imagePullSecret:
           name: ecr-credentials
-          value: {{ $dockerCreds }}
+          value: {{ $dockerCreds | toJson }}
       - image:
           repository: {{ $awsEcrRepo }}
           tag: "deploy_demo_0.1"
