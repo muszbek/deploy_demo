@@ -43,6 +43,8 @@ spec:
           env:
             - name: MIX_ENV
               value: prod
+            - name: PHX_HOST
+              value: {{ .Values.domain }}
             - name: POSTGRES_USER
               value: {{ .Values.postgres.credentials.username }}
             - name: POSTGRES_HOST
@@ -52,13 +54,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: {{ .Values.service.targetport }}
+              port: {{ .Values.deployment.liveness_port }}
             initialDelaySeconds: {{ .Values.deployment.liveness_delay }}
             periodSeconds: {{ .Values.deployment.liveness_period }}
           readinessProbe:
             httpGet:
               path: /
-              port: {{ .Values.service.targetport }}
+              port: {{ .Values.deployment.liveness_port }}
             initialDelaySeconds: {{ .Values.deployment.liveness_delay }}
             periodSeconds: {{ .Values.deployment.liveness_period }}
           resources:

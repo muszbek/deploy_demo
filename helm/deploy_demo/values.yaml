@@ -2,6 +2,8 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+domain: "tamasweb.com"
+
 replicaCount: 2
 
 image:
@@ -45,12 +47,13 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 80
+  port: 443
   targetport: 4000
   nodeport: 30080
 
 deployment:
   postgres_max_wait: 120
+  liveness_port: 4000
   liveness_delay: 10
   liveness_period: 10
 
@@ -63,7 +66,6 @@ ingress:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
-  domain: "tamasweb.com"
 
 postgres:
   image: postgres:15-alpine

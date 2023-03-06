@@ -14,6 +14,7 @@ services:
       - postgres
     environment:
       - MIX_ENV=prod
+      - PHX_HOST=${DOMAIN}
       - POSTGRES_USER=postgres
       - POSTGRES_HOST=postgres
       - DATABASE_URL=ecto://postgres:postgres@postgres/deploy_demo
