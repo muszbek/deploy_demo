@@ -13,7 +13,5 @@ spec:
   resources:
     requests:
       storage: {{ .Values.postgres.volume.size }}
-  selector:
-    matchLabels:
-      type: "{{ .Values.postgres.volume.type }}"
+  storageClassName: gp2
 {{- end }}

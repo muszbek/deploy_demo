@@ -15,7 +15,7 @@ module "eks" {
     group1 = {
       name = "node-group-1"
 
-      instance_types = ["t2.micro"]
+      instance_types = ["t2.small"]
 
       min_size = 1
       max_size = 3
