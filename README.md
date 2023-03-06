@@ -8,6 +8,8 @@ A demo repository for deployment examples of a Phoenix project.
 - docker, docker-compose
 - terraform
 - ansible
+- kubectl
+- helm, helmfile
 
 ### 1. Register to Amazon Web Services
 
@@ -86,4 +88,33 @@ Now the server should be available on the domain name in your browser.
 
 ## Kubernetes deployment
 
-*coming soon* 
+### 5. Build the cloud environment with Terraform
+
+```
+cd ./terraform/eks_deploy
+terraform apply
+```
+
+### 6. Fix the host records in Route53
+Make sure that the nameserver addresses of the NS record are referenced correctly in the domain name registry.
+
+### 7. Source AWS variables
+```
+source ./source_env.sh
+```
+This logs in to Docker with AWS credentials, exports AWS related variables.
+Make sure that the domain name at the beginning of the script is correct.
+
+### 8. Build and push the server image to the AWS ECR
+
+```
+docker-compose build phx-server
+docker push ${AWS_ECR_REPO}:deploy_demo_0.1
+```
+
+### 9. Deploy Kubernetes
+
+```
+helmfile apply
+```
+Now the server should be available on the domain name in your browser.
