@@ -10,5 +10,4 @@ RUN mix deps.get && \
     MIX_ENV=prod mix deps.compile && \
     MIX_ENV=prod mix phx.digest
 
-ENTRYPOINT ["./entrypoint.sh"]
-CMD ["./launcher.sh"]
+CMD ["./entrypoint.sh"]

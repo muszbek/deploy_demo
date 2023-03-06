@@ -51,6 +51,12 @@ spec:
               value: {{ $fullName }}-postgres.{{ .Values.namespaces.database }}
             - name: DATABASE_URL
               value: ecto://{{ .Values.postgres.credentials.username }}:{{ .Values.postgres.credentials.password }}@{{ $fullName }}-postgres.{{ .Values.namespaces.database }}/{{ .Values.postgres.database_name }}
+            - name: SECRET_KEY_BASE
+              value: {{ .Values.deployment.env.secret_key_base }}
+            - name: SESSION_SIGNING_SALT
+              value: {{ .Values.deployment.env.session_signing_salt }}
+            - name: SESSION_CRYPT_SALT
+              value: {{ .Values.deployment.env.session_crypt_salt }}
           livenessProbe:
             httpGet:
               path: /

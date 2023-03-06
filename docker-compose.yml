@@ -18,6 +18,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_HOST=postgres
       - DATABASE_URL=ecto://postgres:postgres@postgres/deploy_demo
+      - SECRET_KEY_BASE=83r2J93jw48fTIrotnNavCnZX81AYyWC7UAh7sDsXNGd/dLoYx4EdkkwgzvK1qZ8
     deploy:
       replicas: 1
       update_config:

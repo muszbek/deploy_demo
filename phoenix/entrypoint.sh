@@ -1,9 +1,14 @@
 #!/bin/bash
-# Docker entrypoint script
+# Docker launcher script
 
-# Setting generated secrets in env variables
-export SECRET_KEY_BASE=$(mix phx.gen.secret)
-export SESSION_SIGNING_SALT=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 8)
-export SESSION_CRYPT_SALT=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 8)
+# Wait until Postgres is ready
+while ! pg_isready -q -h $POSTGRES_HOST -p 5432 -U $POSTGRES_USER
+do
+    echo "$(date) - waiting for database to start..."
+    sleep 2
+done
 
-exec "$@"
+mix ecto.migrate
+mix run priv/repo/seeds.exs
+
+exec mix phx.server
