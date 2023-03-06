@@ -1,5 +1,8 @@
 {{- $fullName := include "deploy_demo.fullname" . -}}
 {{- $imagePullSecret := .Values.imagePullSecret.name -}}
+{{- $secretKeyBase := (randAlphaNum 64 | nospace) -}}
+{{- $sessionSigningSalt := (randAlphaNum 8 | nospace) -}}
+{{- $sessionCryptSalt := (randAlphaNum 8 | nospace) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -52,11 +55,20 @@ spec:
             - name: DATABASE_URL
               value: ecto://{{ .Values.postgres.credentials.username }}:{{ .Values.postgres.credentials.password }}@{{ $fullName }}-postgres.{{ .Values.namespaces.database }}/{{ .Values.postgres.database_name }}
             - name: SECRET_KEY_BASE
-              value: {{ .Values.deployment.env.secret_key_base }}
+              valueFrom:
+                secretKeyRef:
+                  name: phoenix-keys
+                  key: secretKeyBase
             - name: SESSION_SIGNING_SALT
-              value: {{ .Values.deployment.env.session_signing_salt }}
+              valueFrom:
+                secretKeyRef:
+                  name: phoenix-keys
+                  key: sessionSigningSalt
             - name: SESSION_CRYPT_SALT
-              value: {{ .Values.deployment.env.session_crypt_salt }}
+              valueFrom:
+                secretKeyRef:
+                  name: phoenix-keys
+                  key: sessionCryptSalt
           livenessProbe:
             httpGet:
               path: /
@@ -95,3 +107,14 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: phoenix-keys
+data:
+  secretKeyBase: {{ $secretKeyBase | b64enc }}
+  sessionSigningSalt: {{ $sessionSigningSalt | b64enc }}
+  sessionCryptSalt: {{ $sessionCryptSalt | b64enc }}

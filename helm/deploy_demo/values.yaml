@@ -52,10 +52,6 @@ service:
   nodeport: 30080
 
 deployment:
-  env:
-    secret_key_base: {{ randAlphaNum 64 }}
-    session_signing_salt: {{ randAlphaNum 8 }}
-    session_crypt_salt: {{ randAlphaNum 8 }}
   postgres_max_wait: 120
   liveness_port: 4000
   liveness_delay: 10
