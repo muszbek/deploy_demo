@@ -4,7 +4,7 @@ DOCKER_REPO_NAME=demo-repository
 
 AWS_REGION=$(aws configure get region)
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-AWS_ACM_ARN=$(aws acm list-certificates --region $AWS_REGION --query "CertificateSummaryList[?DomainName==${DOMAIN}].CertificateArn" --output text)
+AWS_ACM_ARN=$(aws acm list-certificates --region $AWS_REGION --query "CertificateSummaryList[?DomainName=='${DOMAIN}'].CertificateArn" --output text)
 
 DOCKER_PW=$(aws ecr get-login-password --region $AWS_REGION)
 AWS_ECR_REPO=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${DOCKER_REPO_NAME}
