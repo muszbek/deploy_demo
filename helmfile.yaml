@@ -5,6 +5,8 @@ repositories:
     url: https://aws.github.io/eks-charts
   - name: external-dns
     url: https://kubernetes-sigs.github.io/external-dns
+  - name: grafana
+    url: https://grafana.github.io/helm-charts
 
 {{ $domainName := default "tamasweb.com" (env "DOMAIN") }}
 {{ $clusterName := default "demo-cluster" (env "CLUSTER_NAME") }}
@@ -20,6 +22,7 @@ releases:
       - ingress:
           annotations:
             alb.ingress.kubernetes.io/certificate_arn: {{ $acmArn }}
+            external-dns.alpha.kubernetes.io/hostname: {{ $domainName }}
           domain: {{ $domainName }}
       - imagePullSecret:
           name: ecr-credentials
@@ -62,3 +65,31 @@ releases:
           annotations: {
             "eks.amazonaws.com/role-arn": "arn:aws:iam::{{ $awsAccountId }}:role/iam_external_dns_role"
             }
+
+  - name: loki
+    namespace: monitoring
+    chart: grafana/loki-stack
+    values:
+      - prometheus:
+          enabled: true
+
+  - name: grafana
+    namespace: monitoring
+    chart: grafana/grafana
+    values:
+      - service:
+          port: 443
+      - ingress:
+          enabled: true
+          hosts:
+            - "grafana.{{ $domainName }}"
+          ingressClassName: alb
+          annotations:
+            alb.ingress.kubernetes.io/certificate_arn: {{ $acmArn }}
+            alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+            alb.ingress.kubernetes.io/scheme: internet-facing
+            alb.ingress.kubernetes.io/target-type: ip
+            external-dns.alpha.kubernetes.io/hostname: "grafana.{{ $domainName }}"
+            alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+            alb.ingress.kubernetes.io/group.name: "aws-alb"
+      - "./grafana/grafana_config.yaml"
